@@ -14,7 +14,7 @@ class APIFeatures {
         queryStr = queryStr.replace(/\b(gte|gt|lte|lt|all|in)\b/g, (match) => `$${match}`);
         queryStr = queryStr.replace('"[', (match) => match.replace('"', ''));
         queryStr = queryStr.replace(']"', (match) => match.replace('"', ''));
-        queryStr = queryStr.replace('\\', '');
+        queryStr = queryStr.replace(/\\/g, '');
 
         this.query = this.query.find(JSON.parse(queryStr));
         return this;
