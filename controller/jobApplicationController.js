@@ -1,10 +1,39 @@
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
+const APIFeatures = require('../utils/apiFeatures');
 
 const JobApplication = require('../model/jobApplicationModel');
 const Job = require('../model/jobModel');
 const Notification = require('../model/notificationModel');
+
+exports.getAllMyJobApplicated = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'JobSeeker')) {
+        return next(new AppError('Chỉ có user thuộc dạng người tìm việc mới có thể sử dụng hành động này', 400));
+    }
+    const jobsQuery = new APIFeatures(
+        JobApplication.find({ candicate: req.user._id }).populate([
+            {
+                path: 'job',
+                select: 'postedBy title description salary type available',
+            },
+            {
+                path: 'company',
+                select: 'companyName description',
+            },
+        ]),
+        req.query,
+    )
+        .paginate()
+        .sort()
+        .filter();
+    const jobs = await jobsQuery.query;
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+    });
+});
 
 exports.applyJob = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'JobSeeker')) {

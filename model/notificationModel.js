@@ -13,12 +13,16 @@ const NotificationSchema = new mongoose.Schema(
         content: {
             type: String,
             maxlength: [100, 'Nội dung thông báo không được vượt quá 100 kí tự'],
-            required: [true, 'Nội dung thông báo là bắt buộc'],
+        },
+        type: {
+            type: String,
+            enum: ['job', 'user'],
         },
         isSeen: {
             type: Boolean,
             default: false,
         },
+        entityId: mongoose.Schema.ObjectId,
     },
     {
         timestamps: true,

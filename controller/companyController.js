@@ -3,6 +3,7 @@ const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
 
+const Job = require('../model/jobModel');
 const Company = require('../model/companyModel');
 
 exports.getAllCompany = catchAsync(async (req, res, next) => {
@@ -38,6 +39,21 @@ exports.getCompany = catchAsync(async (req, res, next) => {
         data: company,
     });
 });
+
+exports.getAllMyJobCreated = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'Company')) {
+        return next(new AppError('Chỉ có user thuộc dạng Công ty có thể sử dụng hành động này', 400));
+    }
+
+    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user._id }), req.query).paginate().sort();
+    const jobs = await jobsQuery.query;
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+    });
+});
+
 exports.changeMe = catchAsync(async (req, res, next) => {
     if (req.user.__t !== 'Company') {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện thao tác này', 400));

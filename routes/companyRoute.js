@@ -6,6 +6,7 @@ const companyController = require('../controller/companyController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 router.patch('/changeMe', authMiddleware.protectLogin, companyController.changeMe);
+router.get('/myJobCreated', authMiddleware.protectLogin, companyController.getAllMyJobCreated);
 router.get('/:id', companyController.getCompany);
 router.get('/', companyController.getAllCompany);
 
