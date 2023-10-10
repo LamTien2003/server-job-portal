@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { skills } = require('../constants/index');
 
 const JobSchema = new mongoose.Schema(
     {
@@ -21,7 +22,7 @@ const JobSchema = new mongoose.Schema(
         skillsRequire: [
             {
                 type: String,
-                enum: ['ReactJS', 'NodeJS', 'Java', 'PHP', 'Python', 'Golang'],
+                enum: skills,
             },
         ],
         jobRequire: [
@@ -37,8 +38,8 @@ const JobSchema = new mongoose.Schema(
             required: [true, 'Must have salary for a job'],
         },
         type: {
-            type: String,
-            enum: ['Science', 'IT', 'Medical', 'Copywrite'],
+            type: mongoose.Schema.ObjectId,
+            ref: 'CategoryJob',
             required: [true, 'Must have type of job'],
         },
         available: {

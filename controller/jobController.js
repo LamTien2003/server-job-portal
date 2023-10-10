@@ -16,6 +16,10 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
             {
                 path: 'countApplication',
             },
+            {
+                path: 'type',
+                select: 'categoryName isHotCategory',
+            },
         ]),
         req.query,
     )
