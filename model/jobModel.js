@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dayjs = require('dayjs');
 const { skills } = require('../constants/index');
 
 const JobSchema = new mongoose.Schema(
@@ -41,6 +42,10 @@ const JobSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'CategoryJob',
             required: [true, 'Must have type of job'],
+        },
+        deadline: {
+            type: Date,
+            default: dayjs().add(20, 'day'),
         },
         available: {
             type: Boolean,
