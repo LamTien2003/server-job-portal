@@ -20,6 +20,14 @@ const CategorySchema = new mongoose.Schema(
     },
 );
 
+CategorySchema.virtual('totalJobs', {
+    ref: 'Job',
+    foreignField: 'type',
+    localField: '_id',
+    default: [],
+    count: true,
+});
+
 CategorySchema.pre(/^find/, function (next) {
     this.select('-__v -createdAt -updatedAt');
     next();

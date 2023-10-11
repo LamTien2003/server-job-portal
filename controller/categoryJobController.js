@@ -4,7 +4,7 @@ const { sendResponseToClient } = require('../utils/ultils');
 const CategoryJob = require('../model/categoryJobModel');
 
 exports.getAllCategoryJob = catchAsync(async (req, res, next) => {
-    const listCategoryJob = await CategoryJob.find({});
+    const listCategoryJob = await CategoryJob.find({}).populate('totalJobs');
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: listCategoryJob,
