@@ -5,16 +5,30 @@ const CompanySchema = new mongoose.Schema(
     {
         companyName: {
             type: String,
-            maxlength: [100, 'Name of Company should be less than 100 character'],
-            required: [true, 'Must have name of Company'],
+            maxlength: [100, 'Tên của công ty có tối đa 100 kí tự'],
+            required: [true, 'Tên công ty là trường bắt buộc'],
         },
         description: {
             type: String,
-            maxlength: [500, 'Description for company should be less than 500 character'],
+            maxlength: [500, 'Mô tả của công ty không nên vượt quá 500 kí tự'],
         },
         establishDate: {
             type: Date,
-            required: [true, 'Must have establish date of Company'],
+            required: [true, 'Ngày thành lập công ty là trường bắt buộc'],
+        },
+        companySize: {
+            from: {
+                type: Number,
+                min: 0,
+                default: 1,
+                required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
+            },
+            to: {
+                type: Number,
+                min: 0,
+                default: 10,
+                required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
+            },
         },
         website: String,
     },

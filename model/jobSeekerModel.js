@@ -20,33 +20,35 @@ const jobSeekerSchema = new mongoose.Schema(
                 },
             },
         ],
-        educate: {
-            type: {
-                major: {
-                    type: String,
-                    maxlength: [50, 'Ngành học có tối đa 50 kí tự'],
-                    required: [true, 'Tên ngành học là bắt buộc'],
-                },
-                school: {
-                    type: String,
-                    maxlength: [50, 'Tên trường có tối đa 50 kí tự'],
-                    required: [true, 'Tên trường học là bắt buộc'],
-                },
-                date: {
-                    from: {
-                        type: Date,
-                        required: [true, 'Thời gian nhập học là bắt buộc'],
+        educate: [
+            {
+                type: {
+                    major: {
+                        type: String,
+                        maxlength: [50, 'Ngành học có tối đa 50 kí tự'],
+                        required: [true, 'Tên ngành học là bắt buộc'],
                     },
-                    to: {
-                        type: Date,
+                    school: {
+                        type: String,
+                        maxlength: [50, 'Tên trường có tối đa 50 kí tự'],
+                        required: [true, 'Tên trường học là bắt buộc'],
                     },
-                },
-                isLearning: {
-                    type: Boolean,
-                    default: false,
+                    date: {
+                        from: {
+                            type: Date,
+                            required: [true, 'Thời gian nhập học là bắt buộc'],
+                        },
+                        to: {
+                            type: Date,
+                        },
+                    },
+                    isLearning: {
+                        type: Boolean,
+                        default: false,
+                    },
                 },
             },
-        },
+        ],
         certificate: [
             {
                 name: { type: String, required: [true, 'Tên của chứng chỉ là bắt buộc'] },

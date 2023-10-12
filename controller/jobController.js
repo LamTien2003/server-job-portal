@@ -91,7 +91,7 @@ exports.createJob = catchAsync(async (req, res, next) => {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể tạo công việc mới', 400));
     }
 
-    const { title, description, skillsRequire, jobRequire, salary, type, deadline } = req.body;
+    const { title, description, skillsRequire, jobRequire, salary, type, deadline, numberRecruitment } = req.body;
     const payload = {
         title,
         description,
@@ -100,6 +100,7 @@ exports.createJob = catchAsync(async (req, res, next) => {
         salary,
         type,
         deadline,
+        numberRecruitment,
         postedBy: req.user.id,
     };
     if (req?.files?.filename) {

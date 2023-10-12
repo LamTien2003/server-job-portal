@@ -63,8 +63,15 @@ exports.signUp = catchAsync(async (req, res, next) => {
     }
 
     if (type === 'company') {
-        const { companyName, description, establishDate, website } = req.body;
-        const newUser = await Company.create({ ...payload, companyName, description, establishDate, website });
+        const { companyName, description, establishDate, website, companySize } = req.body;
+        const newUser = await Company.create({
+            ...payload,
+            companyName,
+            description,
+            establishDate,
+            website,
+            companySize,
+        });
         return createAndSendToken(newUser, 201, res);
     }
     if (type === 'jobseeker') {

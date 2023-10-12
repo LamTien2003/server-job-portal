@@ -11,13 +11,13 @@ const JobSchema = new mongoose.Schema(
 
         title: {
             type: String,
-            maxlength: [100, 'Title for job should be less than 100 character'],
-            required: [true, 'Must have title for job'],
+            maxlength: [100, 'Tiêu đề của công việc nên ít hơn 100 kí tự'],
+            required: [true, 'Tiêu đề là trường bắt buộc'],
         },
         description: {
             type: String,
-            maxlength: [500, 'Description for job should be less than 500 character'],
-            required: [true, 'Must have title for job'],
+            maxlength: [500, 'Mô tả công việc không được vượt quá 500 kí tự'],
+            required: [true, 'Mô tả công việc là trường bắt buộc'],
         },
         photosJob: [String],
         skillsRequire: [
@@ -29,19 +29,24 @@ const JobSchema = new mongoose.Schema(
         jobRequire: [
             {
                 type: String,
-                maxlength: [1000, 'Require for job should be less than 1000 character'],
-                required: [true, 'Must have job require'],
+                maxlength: [1000, 'Yêu cầu công việc không được vượt quá 1000 kí tự'],
+                required: [true, 'Yêu cầu công việc là trường bắt buộc'],
             },
         ],
         salary: {
             type: Number,
             min: 0,
-            required: [true, 'Must have salary for a job'],
+            required: [true, 'Lương là trường bắt buộc'],
+        },
+        numberRecruitment: {
+            type: Number,
+            min: 0,
+            default: 1,
         },
         type: {
             type: mongoose.Schema.ObjectId,
             ref: 'CategoryJob',
-            required: [true, 'Must have type of job'],
+            required: [true, 'Loại công việc là trường bắt buộc'],
         },
         deadline: {
             type: Date,
