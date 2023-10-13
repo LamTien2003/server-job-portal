@@ -58,6 +58,10 @@ exports.getJob = catchAsync(async (req, res, next) => {
                 select: 'firstName lastName photo ',
             },
         },
+        {
+            path: 'type',
+            select: 'categoryName isHotCategory',
+        },
     ]);
     if (!job) {
         return next(new AppError('Công việc không còn tồn tại', 400));

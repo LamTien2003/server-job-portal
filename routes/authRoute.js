@@ -8,7 +8,10 @@ const authController = require('../controller/authController');
 // find all users
 router.post(
     '/signup',
-    filesMiddleware.uploadSinglePhoto('photo'),
+    filesMiddleware.uploadMultipleFields([
+        { name: 'photo', maxCount: 1 },
+        { name: 'coverPhoto', maxCount: 1 },
+    ]),
     filesMiddleware.resizePhoto('users'),
     authController.signUp,
 );

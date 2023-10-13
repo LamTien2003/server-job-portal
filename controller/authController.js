@@ -58,8 +58,11 @@ exports.signUp = catchAsync(async (req, res, next) => {
         password,
         passwordConfirm,
     };
-    if (req.file && req.file.filename) {
-        payload.photo = req.file.filename;
+    if (req?.files?.filename?.photo) {
+        payload.photo = req.files.filename.photo[0];
+    }
+    if (req?.files?.filename?.coverPhoto) {
+        payload.coverPhoto = req.files.filename.coverPhoto[0];
     }
 
     if (type === 'company') {

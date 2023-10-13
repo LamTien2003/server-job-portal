@@ -30,6 +30,10 @@ const CompanySchema = new mongoose.Schema(
                 required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
             },
         },
+        coverPhoto: {
+            type: String,
+            default: 'https://res.cloudinary.com/dcv1op3hs/image/upload/v1697170940/users/ogk5xpi6dc8agk9d4cq9.png',
+        },
         website: String,
     },
     {
