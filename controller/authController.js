@@ -91,6 +91,10 @@ exports.login = catchAsync(async (req, res, next) => {
     }
     const user = await User.findOne({ email }).select('+password');
 
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
+    }
+
     if (!user || !(await user.correctPassword(user.password, password))) {
         return next(new AppError('Tài khoản hoặc mật khẩu không chính xác'), 401);
     }
@@ -113,6 +117,9 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
 
     if (!user) {
         return next(new AppError('Người dùng này hiện không còn tồn tại', 401));
+    }
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
     }
     if (token !== user.refreshToken) {
         return next(new AppError('Token không hợp lệ, có thể người dùng đã được đăng nhập từ thiết bị khác', 401));
@@ -142,6 +149,9 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
     const { currentPassword, password, passwordConfirm } = req.body;
 
     const user = await User.findById(req.user.id).select('+password');
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
+    }
     if (!(await user.correctPassword(user.password, currentPassword))) {
         return next(new AppError('Mật khẩu sai !!!', 401));
     }
@@ -157,6 +167,9 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
     const { currentPassword, password, passwordConfirm } = req.body;
 
     const user = await User.findById(req.user.id).select('+password');
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
+    }
     if (!(await user.correctPassword(user.password, currentPassword))) {
         return next(new AppError('Mật khẩu sai !!!', 401));
     }

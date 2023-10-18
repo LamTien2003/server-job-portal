@@ -6,7 +6,10 @@ const APIFeatures = require('../utils/apiFeatures');
 const JobSeeker = require('../model/jobSeekerModel');
 
 exports.getAllJobSeeker = catchAsync(async (req, res, next) => {
-    const jobSeekerQuery = new APIFeatures(JobSeeker.find({}), req.query).paginate().filter().search('firstName');
+    const jobSeekerQuery = new APIFeatures(JobSeeker.find({ ban: { $ne: true } }), req.query)
+        .paginate()
+        .filter()
+        .search('firstName');
 
     const jobSeekers = await jobSeekerQuery.query;
     return sendResponseToClient(res, 200, {
@@ -34,7 +37,10 @@ exports.getJobSeeker = catchAsync(async (req, res, next) => {
         },
     ]);
     if (!jobSeeker) {
-        return next(new AppError('This Job Seeker is nolonger exist', 400));
+        return next(new AppError('Người dùng không tồn tại', 400));
+    }
+    if (jobSeeker.ban) {
+        return next(new AppError('Người dùng đã bị khóa bởi quản trị viên', 401));
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -42,6 +48,9 @@ exports.getJobSeeker = catchAsync(async (req, res, next) => {
     });
 });
 exports.changeMe = catchAsync(async (req, res, next) => {
+    if (req.user.ban) {
+        return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
+    }
     if (req.user.__t !== 'JobSeeker') {
         return next(new AppError('Chỉ có user thuộc dạng người tìm việc mới có thể thực hiện thao tác này', 400));
     }

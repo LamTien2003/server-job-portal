@@ -23,6 +23,9 @@ exports.protectLogin = catchAsync(async (req, res, next) => {
     if (!user) {
         return next(new AppError('Người dùng hiện không còn tồn tại', 401));
     }
+    if (user.ban) {
+        return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
+    }
     if (user.changedPasswordAfter(decoded.iat)) {
         return next(new AppError('Người dùng này đã thay đổi mật khẩu. Vui lòng đăng nhập lại', 401));
     }

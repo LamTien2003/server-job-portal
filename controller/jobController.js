@@ -8,10 +8,11 @@ const CommentJob = require('../model/commentJobModel');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
     const jobsQuery = new APIFeatures(
-        Job.find({ isDelete: false }).populate([
+        Job.find({ isDelete: false, isAccepted: true }).populate([
             {
                 path: 'postedBy',
                 select: 'companyName description establishDate location photo',
+                match: { ban: { $ne: true } },
             },
             {
                 path: 'countApplication',
@@ -28,7 +29,8 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .sort()
         .search('title');
 
-    const jobs = await jobsQuery.query;
+    const result = await jobsQuery.query;
+    const jobs = result.filter((item) => item.postedBy !== null);
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
     }
@@ -39,7 +41,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
 });
 
 exports.getJob = catchAsync(async (req, res, next) => {
-    const job = await Job.findOne({ _id: req.params.id, isDelete: false }).populate([
+    const job = await Job.findOne({ _id: req.params.id, isDelete: false, isAccepted: true }).populate([
         {
             path: 'postedBy',
             select: 'companyName description establishDate location photo',
@@ -69,6 +71,47 @@ exports.getJob = catchAsync(async (req, res, next) => {
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: job,
+    });
+});
+
+exports.approveJob = catchAsync(async (req, res, next) => {
+    const job = await Job.findOne({ _id: req.params.id, isDelete: false });
+    if (job.isAccepted) {
+        return next(new AppError('Công việc này đã được duyệt trước đó', 400));
+    }
+    const newJob = await Job.findByIdAndUpdate(
+        req.params.id,
+        { isAccepted: true },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        msg: 'Phê duyệt công việc thành công',
+        data: newJob,
+    });
+});
+exports.rejectJob = catchAsync(async (req, res, next) => {
+    const job = await Job.findOne({ _id: req.params.id, isDelete: false });
+    if (!job.isAccepted) {
+        return next(new AppError('Công việc này chưa ở trạng thái phê duyệt để có thể tiến hành hủy phê duyệt', 400));
+    }
+    const newJob = await Job.findByIdAndUpdate(
+        req.params.id,
+        { isAccepted: false },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        msg: 'Đã hủy phê duyệt công việc',
+        data: newJob,
     });
 });
 

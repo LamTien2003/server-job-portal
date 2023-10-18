@@ -7,7 +7,10 @@ const Job = require('../model/jobModel');
 const Company = require('../model/companyModel');
 
 exports.getAllCompany = catchAsync(async (req, res, next) => {
-    const companyQuery = new APIFeatures(Company.find({}), req.query).paginate().filter().search('companyName');
+    const companyQuery = new APIFeatures(Company.find({ ban: { $ne: true } }), req.query)
+        .paginate()
+        .filter()
+        .search('companyName');
     const companys = await companyQuery.query;
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -34,6 +37,9 @@ exports.getCompany = catchAsync(async (req, res, next) => {
     if (!company) {
         return next(new AppError('This company is nolonger exist', 400));
     }
+    if (company.ban) {
+        return next(new AppError('Công ty đã bị khóa bởi quản trị viên', 401));
+    }
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: company,
@@ -43,6 +49,9 @@ exports.getCompany = catchAsync(async (req, res, next) => {
 exports.getAllMyJobCreated = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'Company')) {
         return next(new AppError('Chỉ có user thuộc dạng Công ty có thể sử dụng hành động này', 400));
+    }
+    if (req.user.ban) {
+        return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
     }
 
     const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user._id }), req.query).paginate().sort();
@@ -55,6 +64,9 @@ exports.getAllMyJobCreated = catchAsync(async (req, res, next) => {
 });
 
 exports.changeMe = catchAsync(async (req, res, next) => {
+    if (req.user.ban) {
+        return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
+    }
     if (req.user.__t !== 'Company') {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện thao tác này', 400));
     }

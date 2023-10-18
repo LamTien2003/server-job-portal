@@ -7,7 +7,10 @@ const User = require('../model/userModel');
 const Notification = require('../model/notificationModel');
 
 exports.getAllUser = catchAsync(async (req, res, next) => {
-    const userQuery = new APIFeatures(User.find({}), req.query).paginate().filter().search('firstName');
+    const userQuery = new APIFeatures(User.find({ ban: { $ne: true } }), req.query)
+        .paginate()
+        .filter()
+        .search('firstName');
     const users = await userQuery.query;
 
     return sendResponseToClient(res, 200, {
@@ -28,7 +31,10 @@ exports.getUser = catchAsync(async (req, res, next) => {
         },
     ]);
     if (!user) {
-        return next(new AppError('This user is nolonger exist', 400));
+        return next(new AppError('Người dùng không tồn tại', 400));
+    }
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -57,7 +63,10 @@ exports.getMe = catchAsync(async (req, res, next) => {
         },
     ]);
     if (!user) {
-        return next(new AppError('This user is nolonger exist', 400));
+        return next(new AppError('Người dùng không tồn tại', 400));
+    }
+    if (user.ban) {
+        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -125,6 +134,9 @@ exports.unFollowUser = catchAsync(async (req, res, next) => {
 });
 
 exports.changeMe = catchAsync(async (req, res, next) => {
+    if (req.user.ban) {
+        return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
+    }
     if (req.body.password || req.body.passwordConfirm) {
         return next(
             new AppError(
@@ -173,5 +185,26 @@ exports.changeMe = catchAsync(async (req, res, next) => {
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: user,
+    });
+});
+
+exports.unbanUser = catchAsync(async (req, res, next) => {
+    const user = await User.findByIdAndUpdate(req.params.id, { ban: false });
+    if (!user) {
+        return next(new AppError('Người dùng hiện không tồn tại hoặc đã bị chặn', 400));
+    }
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        message: 'Gỡ chặn người dùng thành công',
+    });
+});
+exports.banUser = catchAsync(async (req, res, next) => {
+    const user = await User.findByIdAndUpdate(req.params.id, { ban: true });
+    if (!user) {
+        return next(new AppError('Người dùng hiện không tồn tại hoặc đã bị chặn', 400));
+    }
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        message: 'Chặn người dùng thành công',
     });
 });

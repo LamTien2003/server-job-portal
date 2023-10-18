@@ -56,6 +56,10 @@ const JobSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        isAccepted: {
+            type: Boolean,
+            default: false,
+        },
         isDelete: {
             type: Boolean,
             default: false,

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('./userModel');
+const { skills } = require('../constants/index');
 
 const jobSeekerSchema = new mongoose.Schema(
     {
@@ -14,9 +15,8 @@ const jobSeekerSchema = new mongoose.Schema(
             {
                 type: String,
                 enum: {
-                    values: ['ReactJS', 'NodeJS', 'PHP', 'Java', 'Javascript', 'Golang', 'React-native', 'Python'],
-                    message:
-                        "Chỉ được chọn các kĩ năng trong danh sách sau: 'ReactJS', 'NodeJS', 'PHP', 'Java', 'Javascript', 'Golang', 'React-native', 'Python'",
+                    values: skills,
+                    message: `Chỉ được chọn các kĩ năng trong danh sách sau: ${skills.join(', ')}`,
                 },
             },
         ],

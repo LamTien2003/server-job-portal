@@ -13,6 +13,8 @@ router.post('/accept/:id', authMiddleware.protectLogin, jobApplicationController
 router.post('/remove/:id', authMiddleware.protectLogin, jobApplicationController.removeJobApplication);
 router.post('/apply/:id', authMiddleware.protectLogin, jobApplicationController.applyJob);
 
+router.post('/reject/:id', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), jobController.rejectJob);
+router.post('/approve/:id', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), jobController.approveJob);
 router.patch(
     '/restore/:id',
     authMiddleware.protectLogin,

@@ -7,6 +7,9 @@ const authMiddleware = require('../middleware/authMiddleware');
 const filesMiddleware = require('../middleware/filesMiddleware');
 // find all users
 
+router.patch('/unban/:id', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), userController.unbanUser);
+router.patch('/ban/:id', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), userController.banUser);
+
 router.post('/unfollow/:id', authMiddleware.protectLogin, userController.unFollowUser);
 router.post('/follow/:id', authMiddleware.protectLogin, userController.followUser);
 router.patch(
