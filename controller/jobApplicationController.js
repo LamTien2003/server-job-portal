@@ -19,7 +19,7 @@ exports.getAllMyJobApplicated = catchAsync(async (req, res, next) => {
             },
             {
                 path: 'company',
-                select: 'companyName description',
+                select: 'companyName description photo coverPhoto location',
             },
         ]),
         req.query,
