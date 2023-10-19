@@ -15,7 +15,7 @@ exports.getAllMyJobApplicated = catchAsync(async (req, res, next) => {
         JobApplication.find({ candicate: req.user._id }).populate([
             {
                 path: 'job',
-                select: 'postedBy title description salary type available',
+                select: 'postedBy title description salary type available createdAt',
             },
             {
                 path: 'company',
