@@ -50,6 +50,7 @@ const JobSchema = new mongoose.Schema(
         },
         deadline: {
             type: Date,
+            required: [true, 'Bạn chưa chọn ngày kết thúc tuyển dụng'],
             default: dayjs().add(20, 'day'),
         },
         available: {

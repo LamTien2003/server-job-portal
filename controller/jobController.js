@@ -11,7 +11,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         Job.find({ isDelete: false, isAccepted: true }).populate([
             {
                 path: 'postedBy',
-                select: 'companyName description establishDate location photo',
+                select: 'companyName coverPhoto description establishDate location photo',
                 match: { ban: { $ne: true } },
             },
             {
@@ -44,7 +44,7 @@ exports.getJob = catchAsync(async (req, res, next) => {
     const job = await Job.findOne({ _id: req.params.id, isDelete: false, isAccepted: true }).populate([
         {
             path: 'postedBy',
-            select: 'companyName description establishDate location photo',
+            select: 'companyName coverPhoto description establishDate location photo',
         },
         {
             path: 'applications',
@@ -74,11 +74,28 @@ exports.getJob = catchAsync(async (req, res, next) => {
     });
 });
 
+exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
+    const jobsQuery = new APIFeatures(Job.find({ isAccepted: false, isDelete: false }), req.query)
+        .filter()
+        .paginate()
+        .sort();
+
+    const jobs = await jobsQuery.query;
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+    });
+});
 exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'Company')) {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
     }
-    const jobs = await Job.find({ postedBy: req.user.id, isDelete: true });
+    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user.id, isDelete: true }), req.query)
+        .filter()
+        .paginate()
+        .sort();
+
+    const jobs = await jobsQuery.query;
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,

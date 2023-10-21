@@ -52,6 +52,12 @@ router.post(
     jobController.createJob,
 );
 
+router.get(
+    '/notAccept',
+    authMiddleware.protectLogin,
+    authMiddleware.restrictTo('admin'),
+    jobController.getAllJobNotAcceptYet,
+);
 router.get('/deleted', authMiddleware.protectLogin, jobController.getAllJobDeleted);
 router.get('/:id', jobController.getJob);
 router.get('/', jobController.getAllJob);
