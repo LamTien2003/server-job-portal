@@ -74,6 +74,17 @@ exports.getJob = catchAsync(async (req, res, next) => {
     });
 });
 
+exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'Company')) {
+        return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
+    }
+    const jobs = await Job.find({ postedBy: req.user.id, isDelete: true });
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+    });
+});
+
 exports.approveJob = catchAsync(async (req, res, next) => {
     const job = await Job.findOne({ _id: req.params.id, isDelete: false });
     if (job.isAccepted) {

@@ -54,7 +54,9 @@ exports.getAllMyJobCreated = catchAsync(async (req, res, next) => {
         return next(new AppError('Bạn đã bị khóa bởi quản trị viên', 401));
     }
 
-    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user._id }), req.query).paginate().sort();
+    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user._id, isDelete: false }), req.query)
+        .paginate()
+        .sort();
     const jobs = await jobsQuery.query;
 
     return sendResponseToClient(res, 200, {

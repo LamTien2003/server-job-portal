@@ -7,7 +7,14 @@ const authMiddleware = require('../middleware/authMiddleware');
 const jobController = require('../controller/jobController');
 const jobApplicationController = require('../controller/jobApplicationController');
 const JobModel = require('../model/jobModel');
+const Job = require('../model/jobModel');
 
+router.get(
+    '/application/:id',
+    authMiddleware.protectLogin,
+    authMiddleware.checkOwner(Job, 'postedBy'),
+    jobApplicationController.getAllApplicationOfJob,
+);
 router.post('/cancel/:id', authMiddleware.protectLogin, jobApplicationController.cancelJobApplication);
 router.post('/accept/:id', authMiddleware.protectLogin, jobApplicationController.acceptJobApplication);
 router.post('/remove/:id', authMiddleware.protectLogin, jobApplicationController.removeJobApplication);
@@ -45,6 +52,7 @@ router.post(
     jobController.createJob,
 );
 
+router.get('/deleted', authMiddleware.protectLogin, jobController.getAllJobDeleted);
 router.get('/:id', jobController.getJob);
 router.get('/', jobController.getAllJob);
 module.exports = router;

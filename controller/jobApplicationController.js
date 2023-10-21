@@ -7,6 +7,34 @@ const JobApplication = require('../model/jobApplicationModel');
 const Job = require('../model/jobModel');
 const Notification = require('../model/notificationModel');
 
+exports.getAllApplicationOfJob = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'Company')) {
+        return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
+    }
+    const job = await Job.find({ _id: req.params.id });
+    if (!job) {
+        return next(new AppError('Không tồn tại công việc này'));
+    }
+
+    const jobApplicationsQuery = new APIFeatures(
+        JobApplication.find({ job: req.params.id }).populate([
+            {
+                path: 'candicate',
+                select: 'firstName lastName gender photo introduce',
+            },
+        ]),
+        req.query,
+    )
+        .paginate()
+        .sort()
+        .filter();
+    const jobApplications = await jobApplicationsQuery.query;
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobApplications,
+    });
+});
+
 exports.getAllMyJobApplicated = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'JobSeeker')) {
         return next(new AppError('Chỉ có user thuộc dạng người tìm việc mới có thể sử dụng hành động này', 400));
