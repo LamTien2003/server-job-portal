@@ -30,6 +30,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .search('title');
 
     const result = await jobsQuery.query;
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
     const jobs = result.filter((item) => item.postedBy !== null);
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
@@ -37,6 +38,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
+        totalItems,
     });
 });
 
@@ -79,11 +81,13 @@ exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
         .filter()
         .paginate()
         .sort();
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
 
     const jobs = await jobsQuery.query;
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
+        totalItems,
     });
 });
 exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
@@ -96,9 +100,12 @@ exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
         .sort();
 
     const jobs = await jobsQuery.query;
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
+        totalItems,
     });
 });
 

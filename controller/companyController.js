@@ -12,9 +12,12 @@ exports.getAllCompany = catchAsync(async (req, res, next) => {
         .filter()
         .search('companyName');
     const companys = await companyQuery.query;
+    const totalItems = await Job.find().merge(companyQuery.query).skip(0).limit(0).count();
+
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: companys,
+        totalItems,
     });
 });
 exports.getCompany = catchAsync(async (req, res, next) => {
@@ -58,10 +61,12 @@ exports.getAllMyJobCreated = catchAsync(async (req, res, next) => {
         .paginate()
         .sort();
     const jobs = await jobsQuery.query;
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
+        totalItems,
     });
 });
 

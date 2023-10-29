@@ -12,10 +12,12 @@ exports.getAllUser = catchAsync(async (req, res, next) => {
         .filter()
         .search('firstName');
     const users = await userQuery.query;
+    const totalItems = await Job.find().merge(userQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: users,
+        totalItems,
     });
 });
 exports.getUser = catchAsync(async (req, res, next) => {
