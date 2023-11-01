@@ -3,6 +3,7 @@ const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
 
+const Job = require('../model/jobModel');
 const User = require('../model/userModel');
 const Notification = require('../model/notificationModel');
 
