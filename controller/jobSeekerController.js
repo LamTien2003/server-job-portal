@@ -3,6 +3,7 @@ const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
 
+const Job = require('../model/jobModel');
 const JobSeeker = require('../model/jobSeekerModel');
 
 exports.getAllJobSeeker = catchAsync(async (req, res, next) => {
