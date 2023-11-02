@@ -8,6 +8,42 @@ const CommentJob = require('../model/commentJobModel');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
     const jobsQuery = new APIFeatures(
+        Job.find({ isDelete: false }).populate([
+            {
+                path: 'postedBy',
+                select: 'companyName coverPhoto description establishDate location photo',
+                match: { ban: { $ne: true } },
+            },
+            {
+                path: 'countApplication',
+            },
+            {
+                path: 'type',
+                select: 'categoryName isHotCategory',
+            },
+        ]),
+        req.query,
+    )
+        .filter()
+        .paginate()
+        .sort()
+        .search('title');
+
+    const result = await jobsQuery.query;
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+    const jobs = result.filter((item) => item.postedBy !== null);
+    if (!jobs) {
+        return next(new AppError('Không có công việc nào không còn tồn tại', 400));
+    }
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+        totalItems,
+    });
+});
+
+exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
+    const jobsQuery = new APIFeatures(
         Job.find({ isDelete: false, isAccepted: true }).populate([
             {
                 path: 'postedBy',
@@ -35,6 +71,40 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
     }
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+        totalItems,
+    });
+});
+
+exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
+    const jobsQuery = new APIFeatures(Job.find({ isAccepted: false, isDelete: false }), req.query)
+        .filter()
+        .paginate()
+        .sort();
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+
+    const jobs = await jobsQuery.query;
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobs,
+        totalItems,
+    });
+});
+
+exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'Company')) {
+        return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
+    }
+    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user.id, isDelete: true }), req.query)
+        .filter()
+        .paginate()
+        .sort();
+
+    const jobs = await jobsQuery.query;
+    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
@@ -73,39 +143,6 @@ exports.getJob = catchAsync(async (req, res, next) => {
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: job,
-    });
-});
-
-exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
-    const jobsQuery = new APIFeatures(Job.find({ isAccepted: false, isDelete: false }), req.query)
-        .filter()
-        .paginate()
-        .sort();
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
-
-    const jobs = await jobsQuery.query;
-    return sendResponseToClient(res, 200, {
-        status: 'success',
-        data: jobs,
-        totalItems,
-    });
-});
-exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
-    if (!(req.user.__t === 'Company')) {
-        return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
-    }
-    const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user.id, isDelete: true }), req.query)
-        .filter()
-        .paginate()
-        .sort();
-
-    const jobs = await jobsQuery.query;
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
-
-    return sendResponseToClient(res, 200, {
-        status: 'success',
-        data: jobs,
-        totalItems,
     });
 });
 

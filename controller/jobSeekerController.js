@@ -13,7 +13,7 @@ exports.getAllJobSeeker = catchAsync(async (req, res, next) => {
         .search('firstName');
 
     const jobSeekers = await jobSeekerQuery.query;
-    const totalItems = await Job.find().merge(jobSeekers.query).skip(0).limit(0).count();
+    const totalItems = await JobSeeker.find().merge(jobSeekers.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',

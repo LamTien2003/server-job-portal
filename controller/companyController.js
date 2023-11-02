@@ -12,7 +12,7 @@ exports.getAllCompany = catchAsync(async (req, res, next) => {
         .filter()
         .search('companyName');
     const companys = await companyQuery.query;
-    const totalItems = await Job.find().merge(companyQuery.query).skip(0).limit(0).count();
+    const totalItems = await Company.find().merge(companyQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',

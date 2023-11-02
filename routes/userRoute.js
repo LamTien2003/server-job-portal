@@ -21,6 +21,7 @@ router.patch(
 );
 router.patch('/updateMyPassword', authMiddleware.protectLogin, authController.updateMyPassword);
 router.get('/getMe', authMiddleware.protectLogin, userController.getMe);
+router.get('/banned', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), userController.getAllUserBanned);
 router.get('/:id', userController.getUser);
 router.get('/', userController.getAllUser);
 

@@ -29,7 +29,7 @@ exports.getAllApplicationOfJob = catchAsync(async (req, res, next) => {
         .sort()
         .filter();
     const jobApplications = await jobApplicationsQuery.query;
-    const totalItems = await Job.find().merge(jobApplicationsQuery.query).skip(0).limit(0).count();
+    const totalItems = await JobApplication.find().merge(jobApplicationsQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -59,7 +59,7 @@ exports.getAllMyJobApplicated = catchAsync(async (req, res, next) => {
         .sort()
         .filter();
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+    const totalItems = await JobApplication.find().merge(jobsQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',

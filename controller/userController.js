@@ -13,7 +13,7 @@ exports.getAllUser = catchAsync(async (req, res, next) => {
         .filter()
         .search('firstName');
     const users = await userQuery.query;
-    const totalItems = await Job.find().merge(userQuery.query).skip(0).limit(0).count();
+    const totalItems = await User.find().merge(userQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -21,6 +21,19 @@ exports.getAllUser = catchAsync(async (req, res, next) => {
         totalItems,
     });
 });
+
+exports.getAllUserBanned = catchAsync(async (req, res, next) => {
+    const userQuery = new APIFeatures(User.find({ ban: true }), req.query).paginate().filter().search('firstName');
+    const totalItems = await User.find().merge(userQuery.query).skip(0).limit(0).count();
+    const users = await userQuery.query;
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: users,
+        totalItems,
+    });
+});
+
 exports.getUser = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.params.id).populate([
         {
