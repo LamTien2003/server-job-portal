@@ -36,14 +36,15 @@ exports.deleteCategoryJob = catchAsync(async (req, res, next) => {
 
 exports.changeCategoryJob = catchAsync(async (req, res, next) => {
     const { categoryName, isHotCategory } = req.body;
-    const payload = {};
-    if (categoryName) payload.categoryName = categoryName;
-    if (isHotCategory) payload.isHotCategory = isHotCategory;
 
-    const categoryJob = await CategoryJob.findByIdAndUpdate(req.params.id, payload, {
-        new: true,
-        runValidators: true,
-    });
+    const categoryJob = await CategoryJob.findByIdAndUpdate(
+        req.params.id,
+        { categoryName, isHotCategory },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
     if (!categoryJob) {
         return next(new AppError('Danh mục ngành nghề không tồn tại', 400));
     }
