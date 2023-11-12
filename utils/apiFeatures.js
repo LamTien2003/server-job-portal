@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 class APIFeatures {
     constructor(query, queryString) {
         this.query = query;
@@ -16,14 +18,22 @@ class APIFeatures {
         queryStr = queryStr.replace(']"', (match) => match.replace('"', ''));
         queryStr = queryStr.replace(/\\/g, '');
 
-        this.query = this.query.find(JSON.parse(queryStr));
+        if (this.query instanceof mongoose.Aggregate) {
+            this.query = this.query.match(JSON.parse(queryStr));
+        } else {
+            this.query = this.query.find(JSON.parse(queryStr));
+        }
         return this;
     }
 
     search(fieldName) {
         const q = this.queryString.q;
         if (q) {
-            this.query = this.query.find({ [fieldName]: { $regex: q, $options: 'i' } });
+            if (this.query instanceof mongoose.Aggregate) {
+                this.query = this.query.match({ [fieldName]: { $regex: q, $options: 'i' } });
+            } else {
+                this.query = this.query.find({ [fieldName]: { $regex: q, $options: 'i' } });
+            }
         }
         return this;
     }
@@ -43,13 +53,15 @@ class APIFeatures {
         if (this.queryString.limit) {
             const limit = this.queryString.limit * 1 || 10;
             this.query = this.query.limit(limit);
-        } else {
-            this.query = this.query.select('-__v');
         }
 
         return this;
     }
     limitFields() {
+        if (this.query instanceof mongoose.Aggregate) {
+            console.log('Aggregate is not available to limit fields');
+            return this;
+        }
         if (this.queryString.fields) {
             const fields = this.queryString.fields.split(',').join(' ');
             this.query = this.query.select(fields);

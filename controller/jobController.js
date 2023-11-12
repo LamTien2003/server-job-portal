@@ -3,24 +3,73 @@ const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
 
+const CategoryJob = require('../model/categoryJobModel');
+const JobApplication = require('../model/jobApplicationModel');
+const Company = require('../model/companyModel');
 const Job = require('../model/jobModel');
 const CommentJob = require('../model/commentJobModel');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
     const jobsQuery = new APIFeatures(
-        Job.find({ isDelete: false }).populate([
+        Job.aggregate([
             {
-                path: 'postedBy',
-                select: 'companyName coverPhoto description establishDate location photo',
-                match: { ban: { $ne: true } },
+                $lookup: {
+                    from: Company.collection.name,
+                    localField: 'postedBy',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                companyName: 1,
+                                coverPhoto: 1,
+                                description: 1,
+                                establishDate: 1,
+                                location: 1,
+                                photo: 1,
+                            },
+                        },
+                    ],
+                    as: 'postedBy',
+                },
             },
             {
-                path: 'countApplication',
+                $lookup: {
+                    from: CategoryJob.collection.name,
+                    foreignField: '_id',
+                    localField: 'type',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                categoryName: 1,
+                                isHotCategory: 1,
+                            },
+                        },
+                    ],
+                    as: 'type',
+                },
             },
             {
-                path: 'type',
-                select: 'categoryName isHotCategory',
+                $lookup: {
+                    from: JobApplication.collection.name,
+                    foreignField: 'job',
+                    localField: '_id',
+                    as: 'applications',
+                },
             },
+            {
+                $unwind: '$postedBy',
+            },
+            {
+                $unwind: '$type',
+            },
+            {
+                $set: {
+                    countApplication: { $size: '$applications' },
+                },
+            },
+            { $match: { 'postedBy.ban': { $ne: true } } },
         ]),
         req.query,
     )
@@ -29,9 +78,8 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .sort()
         .search('title');
 
-    const result = await jobsQuery.query;
+    const jobs = await jobsQuery.query;
     const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
-    const jobs = result.filter((item) => item.postedBy !== null);
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
     }
@@ -214,7 +262,6 @@ exports.createJob = catchAsync(async (req, res, next) => {
     const payload = {
         title,
         description,
-        skillsRequire,
         jobRequire,
         salary,
         type,
@@ -222,10 +269,13 @@ exports.createJob = catchAsync(async (req, res, next) => {
         numberRecruitment,
         postedBy: req.user.id,
     };
+    if (skillsRequire) {
+        payload.skillsRequire = JSON.parse(skillsRequire);
+    }
     if (req?.files?.filename) {
         payload.photosJob = req.files.filename;
     }
-
+    console.log(payload);
     const job = await Job.create(payload);
     return sendResponseToClient(res, 200, {
         status: 'success',
