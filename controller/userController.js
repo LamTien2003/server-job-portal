@@ -211,7 +211,7 @@ exports.unbanUser = catchAsync(async (req, res, next) => {
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
-        message: 'Gỡ chặn người dùng thành công',
+        msg: 'Gỡ chặn người dùng thành công',
     });
 });
 exports.banUser = catchAsync(async (req, res, next) => {
@@ -221,6 +221,6 @@ exports.banUser = catchAsync(async (req, res, next) => {
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
-        message: 'Chặn người dùng thành công',
+        msg: 'Chặn người dùng thành công',
     });
 });

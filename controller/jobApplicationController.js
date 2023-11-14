@@ -20,7 +20,7 @@ exports.getAllApplicationOfJob = catchAsync(async (req, res, next) => {
         JobApplication.find({ job: req.params.id }).populate([
             {
                 path: 'candicate',
-                select: 'firstName lastName gender photo introduce',
+                select: 'firstName lastName gender photo introduce cvImage',
             },
         ]),
         req.query,

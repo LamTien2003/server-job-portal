@@ -9,68 +9,75 @@ const Company = require('../model/companyModel');
 const Job = require('../model/jobModel');
 const CommentJob = require('../model/commentJobModel');
 
+const pipelineJobs = [
+    {
+        $lookup: {
+            from: Company.collection.name,
+            localField: 'postedBy',
+            foreignField: '_id',
+            pipeline: [
+                {
+                    $project: {
+                        _id: 1,
+                        companyName: 1,
+                        coverPhoto: 1,
+                        description: 1,
+                        establishDate: 1,
+                        location: 1,
+                        photo: 1,
+                        ban: 1,
+                    },
+                },
+            ],
+            as: 'postedBy',
+        },
+    },
+    {
+        $lookup: {
+            from: CategoryJob.collection.name,
+            foreignField: '_id',
+            localField: 'type',
+            pipeline: [
+                {
+                    $project: {
+                        _id: 1,
+                        categoryName: 1,
+                        isHotCategory: 1,
+                    },
+                },
+            ],
+            as: 'type',
+        },
+    },
+    {
+        $lookup: {
+            from: JobApplication.collection.name,
+            foreignField: 'job',
+            localField: '_id',
+            as: 'applications',
+        },
+    },
+    {
+        $unwind: '$postedBy',
+    },
+    {
+        $unwind: '$type',
+    },
+    {
+        $set: {
+            countApplication: { $size: '$applications' },
+        },
+    },
+    {
+        $unset: 'applications',
+    },
+];
+
 exports.getAllJob = catchAsync(async (req, res, next) => {
     const jobsQuery = new APIFeatures(
-        Job.aggregate([
-            {
-                $lookup: {
-                    from: Company.collection.name,
-                    localField: 'postedBy',
-                    foreignField: '_id',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 1,
-                                companyName: 1,
-                                coverPhoto: 1,
-                                description: 1,
-                                establishDate: 1,
-                                location: 1,
-                                photo: 1,
-                            },
-                        },
-                    ],
-                    as: 'postedBy',
-                },
-            },
-            {
-                $lookup: {
-                    from: CategoryJob.collection.name,
-                    foreignField: '_id',
-                    localField: 'type',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 1,
-                                categoryName: 1,
-                                isHotCategory: 1,
-                            },
-                        },
-                    ],
-                    as: 'type',
-                },
-            },
-            {
-                $lookup: {
-                    from: JobApplication.collection.name,
-                    foreignField: 'job',
-                    localField: '_id',
-                    as: 'applications',
-                },
-            },
-            {
-                $unwind: '$postedBy',
-            },
-            {
-                $unwind: '$type',
-            },
-            {
-                $set: {
-                    countApplication: { $size: '$applications' },
-                },
-            },
-            { $match: { 'postedBy.ban': { $ne: true } } },
-        ]),
+        Job.aggregate(pipelineJobs)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } }),
         req.query,
     )
         .filter()
@@ -79,33 +86,26 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+    const totalItems = await Job.aggregate(pipelineJobs)
+        .match({ 'postedBy.ban': { $ne: true } })
+        .match({ isDelete: { $ne: true } })
+        .count('totalItems');
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
     }
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
-        totalItems,
+        ...totalItems[0],
     });
 });
 
 exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
     const jobsQuery = new APIFeatures(
-        Job.find({ isDelete: false, isAccepted: true }).populate([
-            {
-                path: 'postedBy',
-                select: 'companyName coverPhoto description establishDate location photo',
-                match: { ban: { $ne: true } },
-            },
-            {
-                path: 'countApplication',
-            },
-            {
-                path: 'type',
-                select: 'categoryName isHotCategory',
-            },
-        ]),
+        Job.aggregate(pipelineJobs)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } })
+            .match({ isAccepted: true }),
         req.query,
     )
         .filter()
@@ -113,31 +113,44 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         .sort()
         .search('title');
 
-    const result = await jobsQuery.query;
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
-    const jobs = result.filter((item) => item.postedBy !== null);
-    if (!jobs) {
-        return next(new AppError('Không có công việc nào không còn tồn tại', 400));
-    }
+    const jobs = await jobsQuery.query;
+    const totalItems = await Job.aggregate(pipelineJobs)
+        .match({ 'postedBy.ban': { $ne: true } })
+        .match({ isDelete: { $ne: true } })
+        .match({ isAccepted: true })
+        .count('totalItems');
+
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
-        totalItems,
+        ...totalItems[0],
     });
 });
 
 exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
-    const jobsQuery = new APIFeatures(Job.find({ isAccepted: false, isDelete: false }), req.query)
+    const jobsQuery = new APIFeatures(
+        Job.aggregate(pipelineJobs)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } })
+            .match({ isAccepted: false }),
+        req.query,
+    )
         .filter()
         .paginate()
-        .sort();
-    const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
+        .sort()
+        .search('title');
 
     const jobs = await jobsQuery.query;
+    const totalItems = await Job.aggregate(pipelineJobs)
+        .match({ 'postedBy.ban': { $ne: true } })
+        .match({ isDelete: { $ne: true } })
+        .match({ isAccepted: false })
+        .count('totalItems');
+
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
-        totalItems,
+        ...totalItems[0],
     });
 });
 
@@ -275,7 +288,6 @@ exports.createJob = catchAsync(async (req, res, next) => {
     if (req?.files?.filename) {
         payload.photosJob = req.files.filename;
     }
-    console.log(payload);
     const job = await Job.create(payload);
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -299,7 +311,7 @@ exports.removeJob = catchAsync(async (req, res, next) => {
 
     return sendResponseToClient(res, 204, {
         status: 'success',
-        message: 'Xóa thành công, công việc đã được xóa và thêm vào kho lưu trữ',
+        msg: 'Xóa thành công, công việc đã được xóa và thêm vào kho lưu trữ',
         data: job,
     });
 });
@@ -315,7 +327,7 @@ exports.deleteJob = catchAsync(async (req, res, next) => {
 
     return sendResponseToClient(res, 204, {
         status: 'success',
-        message: 'Đã xóa vĩnh viễn công việc này',
+        msg: 'Đã xóa vĩnh viễn công việc này',
     });
 });
 
@@ -334,7 +346,7 @@ exports.restoreJob = catchAsync(async (req, res, next) => {
 
     return sendResponseToClient(res, 200, {
         status: 'success',
-        message: 'Khôi phục công việc thành công',
+        msg: 'Khôi phục công việc thành công',
         data: job,
     });
 });

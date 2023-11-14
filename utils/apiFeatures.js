@@ -14,6 +14,7 @@ class APIFeatures {
         // 1B) Advanced filtering
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gte|gt|lte|lt|all|in)\b/g, (match) => `$${match}`);
+        // Handle array query string
         queryStr = queryStr.replace('"[', (match) => match.replace('"', ''));
         queryStr = queryStr.replace(']"', (match) => match.replace('"', ''));
         queryStr = queryStr.replace(/\\/g, '');

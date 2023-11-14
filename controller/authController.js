@@ -141,7 +141,7 @@ exports.logout = catchAsync(async (req, res, next) => {
 
     return sendResponseToClient(res, 200, {
         status: 'success',
-        message: 'Đăng xuất thành công !!! ',
+        msg: 'Đăng xuất thành công !!! ',
     });
 });
 
