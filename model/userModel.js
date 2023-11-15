@@ -38,8 +38,21 @@ const userSchema = new mongoose.Schema(
         },
 
         location: {
-            type: String,
-            default: 'No Infomation about this',
+            type: {
+                city: {
+                    type: String,
+                    required: [true, 'Bạn chưa chọn Tỉnh/Thành phố'],
+                },
+                district: {
+                    type: String,
+                    required: [true, 'Bạn chưa chọn quận/huyện'],
+                },
+                address: {
+                    type: String,
+                    required: [true, 'Bạn chưa nhập địa chỉ chi tiết'],
+                },
+            },
+            required: [true, 'Thông tin địa chỉ là trường bắt buộc'],
         },
 
         follows: [

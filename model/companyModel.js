@@ -17,18 +17,21 @@ const CompanySchema = new mongoose.Schema(
             required: [true, 'Ngày thành lập công ty là trường bắt buộc'],
         },
         companySize: {
-            from: {
-                type: Number,
-                min: 0,
-                default: 1,
-                required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
+            type: {
+                from: {
+                    type: Number,
+                    min: 0,
+                    default: 1,
+                    required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
+                },
+                to: {
+                    type: Number,
+                    min: 0,
+                    default: 10,
+                    required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
+                },
             },
-            to: {
-                type: Number,
-                min: 0,
-                default: 10,
-                required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
-            },
+            required: [true, 'Quy mô nhân sự của công ty là trường bắt buộc'],
         },
         coverPhoto: {
             type: String,

@@ -74,8 +74,17 @@ const pipelineJobs = [
 ];
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
+    const { p, d } = req.query;
+    let finalPipeline = [...pipelineJobs];
+    if (p) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.city': { $regex: p, $options: 'i' } } }];
+    }
+    if (d) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.district': { $regex: d, $options: 'i' } } }];
+    }
+
     const jobsQuery = new APIFeatures(
-        Job.aggregate(pipelineJobs)
+        Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })
             .match({ isDelete: { $ne: true } }),
         req.query,
@@ -86,7 +95,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(pipelineJobs)
+    const totalItems = await Job.aggregate(finalPipeline)
         .match({ 'postedBy.ban': { $ne: true } })
         .match({ isDelete: { $ne: true } })
         .count('totalItems');
@@ -101,8 +110,17 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
+    const { p, d } = req.query;
+    let finalPipeline = [...pipelineJobs];
+    if (p) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.city': { $regex: p, $options: 'i' } } }];
+    }
+    if (d) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.district': { $regex: d, $options: 'i' } } }];
+    }
+
     const jobsQuery = new APIFeatures(
-        Job.aggregate(pipelineJobs)
+        Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })
             .match({ isDelete: { $ne: true } })
             .match({ isAccepted: true }),
@@ -114,7 +132,7 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(pipelineJobs)
+    const totalItems = await Job.aggregate(finalPipeline)
         .match({ 'postedBy.ban': { $ne: true } })
         .match({ isDelete: { $ne: true } })
         .match({ isAccepted: true })
@@ -128,8 +146,17 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
+    const { p, d } = req.query;
+    let finalPipeline = [...pipelineJobs];
+    if (p) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.city': { $regex: p, $options: 'i' } } }];
+    }
+    if (d) {
+        finalPipeline = [...finalPipeline, { $match: { 'postedBy.location.district': { $regex: d, $options: 'i' } } }];
+    }
+
     const jobsQuery = new APIFeatures(
-        Job.aggregate(pipelineJobs)
+        Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })
             .match({ isDelete: { $ne: true } })
             .match({ isAccepted: false }),
@@ -141,7 +168,7 @@ exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(pipelineJobs)
+    const totalItems = await Job.aggregate(finalPipeline)
         .match({ 'postedBy.ban': { $ne: true } })
         .match({ isDelete: { $ne: true } })
         .match({ isAccepted: false })
