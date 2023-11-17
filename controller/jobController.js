@@ -95,10 +95,17 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(finalPipeline)
-        .match({ 'postedBy.ban': { $ne: true } })
-        .match({ isDelete: { $ne: true } })
-        .count('totalItems');
+    const totalItems = await new APIFeatures(
+        Job.aggregate(finalPipeline)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } }),
+        req.query,
+    )
+        .filter()
+        .sort()
+        .search('title')
+        .query.count('totalItems');
+
     if (!jobs) {
         return next(new AppError('Không có công việc nào không còn tồn tại', 400));
     }
@@ -132,11 +139,17 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(finalPipeline)
-        .match({ 'postedBy.ban': { $ne: true } })
-        .match({ isDelete: { $ne: true } })
-        .match({ isAccepted: true })
-        .count('totalItems');
+    const totalItems = await new APIFeatures(
+        Job.aggregate(finalPipeline)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } })
+            .match({ isAccepted: true }),
+        req.query,
+    )
+        .filter()
+        .sort()
+        .search('title')
+        .query.count('totalItems');
 
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -168,11 +181,17 @@ exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
         .search('title');
 
     const jobs = await jobsQuery.query;
-    const totalItems = await Job.aggregate(finalPipeline)
-        .match({ 'postedBy.ban': { $ne: true } })
-        .match({ isDelete: { $ne: true } })
-        .match({ isAccepted: false })
-        .count('totalItems');
+    const totalItems = await new APIFeatures(
+        Job.aggregate(finalPipeline)
+            .match({ 'postedBy.ban': { $ne: true } })
+            .match({ isDelete: { $ne: true } })
+            .match({ isAccepted: false }),
+        req.query,
+    )
+        .filter()
+        .sort()
+        .search('title')
+        .query.count('totalItems');
 
     return sendResponseToClient(res, 200, {
         status: 'success',

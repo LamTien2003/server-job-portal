@@ -20,7 +20,23 @@ class APIFeatures {
         queryStr = queryStr.replace(/\\/g, '');
 
         if (this.query instanceof mongoose.Aggregate) {
-            this.query = this.query.match(JSON.parse(queryStr));
+            // Because arrgegate only match with exactly type of value, example '140000' won't match because it's string
+            // => We have to handle to convert it to number type
+            const query = Object.entries(JSON.parse(queryStr)).reduce((prev, [key, value]) => {
+                let finalValue = value;
+                if (typeof value === 'object') {
+                    finalValue = Object.entries(value).reduce(
+                        (prevItem, [keyItem, valueItem]) => ({
+                            ...prevItem,
+                            [keyItem]: +valueItem ? +valueItem : valueItem,
+                        }),
+                        {},
+                    );
+                }
+                return { ...prev, [key]: +finalValue ? +finalValue : finalValue };
+            }, {});
+
+            this.query = this.query.match(query);
         } else {
             this.query = this.query.find(JSON.parse(queryStr));
         }
