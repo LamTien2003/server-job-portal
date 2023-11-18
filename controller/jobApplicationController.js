@@ -7,6 +7,32 @@ const JobApplication = require('../model/jobApplicationModel');
 const Job = require('../model/jobModel');
 const Notification = require('../model/notificationModel');
 
+exports.getAllApplicationOfMyCompany = catchAsync(async (req, res, next) => {
+    if (!(req.user.__t === 'Company')) {
+        return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
+    }
+
+    const jobApplicationsQuery = new APIFeatures(
+        JobApplication.find({ company: req.user._id }).populate([
+            {
+                path: 'candicate',
+                select: 'firstName lastName gender photo introduce cvImage',
+            },
+        ]),
+        req.query,
+    )
+        .paginate()
+        .sort()
+        .filter();
+    const jobApplications = await jobApplicationsQuery.query;
+    const totalItems = await JobApplication.find().merge(jobApplicationsQuery.query).skip(0).limit(0).count();
+
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        data: jobApplications,
+        totalItems,
+    });
+});
 exports.getAllApplicationOfJob = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'Company')) {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));

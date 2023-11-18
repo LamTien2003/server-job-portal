@@ -9,6 +9,7 @@ const jobApplicationController = require('../controller/jobApplicationController
 const JobModel = require('../model/jobModel');
 const Job = require('../model/jobModel');
 
+router.get('/applicationSentToMe', authMiddleware.protectLogin, jobApplicationController.getAllApplicationOfMyCompany);
 router.get(
     '/application/:id',
     authMiddleware.protectLogin,
