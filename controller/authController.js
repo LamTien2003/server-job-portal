@@ -91,7 +91,7 @@ exports.login = catchAsync(async (req, res, next) => {
     }
     const user = await User.findOne({ email }).select('+password');
 
-    if (user.ban) {
+    if (user?.ban) {
         return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
     }
 
