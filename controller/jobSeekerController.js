@@ -3,7 +3,6 @@ const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
 
-const Job = require('../model/jobModel');
 const JobSeeker = require('../model/jobSeekerModel');
 
 exports.getAllJobSeeker = catchAsync(async (req, res, next) => {
@@ -13,7 +12,7 @@ exports.getAllJobSeeker = catchAsync(async (req, res, next) => {
         .search('firstName');
 
     const jobSeekers = await jobSeekerQuery.query;
-    const totalItems = await JobSeeker.find().merge(jobSeekers.query).skip(0).limit(0).count();
+    const totalItems = await JobSeeker.find().merge(jobSeekerQuery.query).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
