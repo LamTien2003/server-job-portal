@@ -53,6 +53,12 @@ router.post(
     jobController.createJob,
 );
 
+router.get(
+    '/statistic',
+    authMiddleware.protectLogin,
+    authMiddleware.restrictTo('admin'),
+    jobController.getStatisticJob,
+);
 router.get('/all', authMiddleware.protectLogin, authMiddleware.restrictTo('admin'), jobController.getAllJob);
 router.get(
     '/notAccept',
