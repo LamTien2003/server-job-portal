@@ -1,5 +1,3 @@
-const dayjs = require('dayjs');
-
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
@@ -74,37 +72,6 @@ const pipelineJobs = [
         $unset: 'applications',
     },
 ];
-
-exports.getStatisticJob = catchAsync(async (req, res, next) => {
-    const statistic = await Job.aggregate([
-        {
-            $match: {
-                createdAt: {
-                    $gte: dayjs().add(-12, 'month').startOf('month').toDate(),
-                    $lte: dayjs().endOf('month').toDate(),
-                },
-            },
-        },
-        {
-            $group: {
-                _id: { $month: '$createdAt' },
-                amountJob: { $sum: 1 },
-            },
-        },
-        {
-            $addFields: { month: '$_id' },
-        },
-        {
-            $project: {
-                _id: 0,
-            },
-        },
-    ]);
-    sendResponseToClient(res, 200, {
-        status: 'success',
-        data: statistic,
-    });
-});
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
     const { p, d } = req.query;

@@ -4,6 +4,7 @@ const jobSeekerRoute = require('./jobSeekerRoute');
 const categoryJobRoute = require('./categoryJobRoute');
 const jobRoute = require('./jobRoute');
 const userRoute = require('./userRoute');
+const statisticRoute = require('./statisticRoute');
 const utilsRoute = require('./utilsRoute');
 
 const route = (app) => {
@@ -13,6 +14,7 @@ const route = (app) => {
     app.use('/categoryJob', categoryJobRoute);
     app.use('/job', jobRoute);
     app.use('/user', userRoute);
+    app.use('/statistic', statisticRoute);
     app.use('/utils', utilsRoute);
 };
 
