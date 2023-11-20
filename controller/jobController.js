@@ -34,23 +34,6 @@ const pipelineJobs = [
     },
     {
         $lookup: {
-            from: CategoryJob.collection.name,
-            foreignField: '_id',
-            localField: 'type',
-            pipeline: [
-                {
-                    $project: {
-                        _id: 1,
-                        categoryName: 1,
-                        isHotCategory: 1,
-                    },
-                },
-            ],
-            as: 'type',
-        },
-    },
-    {
-        $lookup: {
             from: JobApplication.collection.name,
             foreignField: 'job',
             localField: '_id',
@@ -61,13 +44,11 @@ const pipelineJobs = [
         $unwind: '$postedBy',
     },
     {
-        $unwind: '$type',
-    },
-    {
         $set: {
             countApplication: { $size: '$applications' },
         },
     },
+
     {
         $unset: 'applications',
     },
@@ -94,7 +75,21 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         .sort()
         .search('title');
 
-    const jobs = await jobsQuery.query;
+    const jobs = await jobsQuery.query.lookup({
+        from: CategoryJob.collection.name,
+        foreignField: '_id',
+        localField: 'type',
+        pipeline: [
+            {
+                $project: {
+                    _id: 1,
+                    categoryName: 1,
+                    isHotCategory: 1,
+                },
+            },
+        ],
+        as: 'type',
+    });
     const totalItems = await new APIFeatures(
         Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })
@@ -137,8 +132,21 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         .paginate()
         .sort()
         .search('title');
-
-    const jobs = await jobsQuery.query;
+    const jobs = await jobsQuery.query.lookup({
+        from: CategoryJob.collection.name,
+        foreignField: '_id',
+        localField: 'type',
+        pipeline: [
+            {
+                $project: {
+                    _id: 1,
+                    categoryName: 1,
+                    isHotCategory: 1,
+                },
+            },
+        ],
+        as: 'type',
+    });
     const totalItems = await new APIFeatures(
         Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })
@@ -150,7 +158,6 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         .sort()
         .search('title')
         .query.count('totalItems');
-
     return sendResponseToClient(res, 200, {
         status: 'success',
         data: jobs,
@@ -180,7 +187,21 @@ exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
         .sort()
         .search('title');
 
-    const jobs = await jobsQuery.query;
+    const jobs = await jobsQuery.query.lookup({
+        from: CategoryJob.collection.name,
+        foreignField: '_id',
+        localField: 'type',
+        pipeline: [
+            {
+                $project: {
+                    _id: 1,
+                    categoryName: 1,
+                    isHotCategory: 1,
+                },
+            },
+        ],
+        as: 'type',
+    });
     const totalItems = await new APIFeatures(
         Job.aggregate(finalPipeline)
             .match({ 'postedBy.ban': { $ne: true } })

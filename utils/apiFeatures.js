@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 class APIFeatures {
     constructor(query, queryString) {
@@ -33,9 +34,18 @@ class APIFeatures {
                         {},
                     );
                 }
-                return { ...prev, [key]: +finalValue ? +finalValue : finalValue };
-            }, {});
+                // If finalValue is number
+                if (+finalValue) {
+                    return { ...prev, [key]: +finalValue };
+                }
+                // If finalValue is string
 
+                // Check if it's objectId or not
+                if (ObjectId.isValid(finalValue)) {
+                    return { ...prev, [key]: new ObjectId(finalValue) };
+                }
+                return { ...prev, [key]: finalValue };
+            }, {});
             this.query = this.query.match(query);
         } else {
             this.query = this.query.find(JSON.parse(queryStr));

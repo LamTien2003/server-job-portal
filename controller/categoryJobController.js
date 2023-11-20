@@ -1,14 +1,20 @@
 const catchAsync = require('../utils/catchAsync');
 const { sendResponseToClient } = require('../utils/ultils');
+const APIFeatures = require('../utils/apiFeatures');
 
 const CategoryJob = require('../model/categoryJobModel');
 const AppError = require('../utils/appError');
 
 exports.getAllCategoryJob = catchAsync(async (req, res, next) => {
-    const listCategoryJob = await CategoryJob.find({}).populate('totalJobs');
+    const categoryQuery = new APIFeatures(CategoryJob.find({}).populate('totalJobs'), req.query).paginate().filter();
+
+    const categories = await categoryQuery.query;
+    const totalItems = await CategoryJob.find().merge(categoryQuery.query).skip(0).limit(0).count();
+
     return sendResponseToClient(res, 200, {
         status: 'success',
-        data: listCategoryJob,
+        data: categories,
+        totalItems,
     });
 });
 

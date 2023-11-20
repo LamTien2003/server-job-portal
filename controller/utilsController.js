@@ -30,9 +30,19 @@ exports.getDistrict = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.getCity = catchAsync(async (req, res, next) => {
+exports.getAllCity = catchAsync(async (req, res, next) => {
     const { code } = req.query;
     const district = await axios.get(`https://provinces.open-api.vn/api/p/${code ? code : ''}`);
+
+    sendResponseToClient(res, 200, {
+        status: 'success',
+        data: district.data,
+    });
+});
+
+exports.getCity = catchAsync(async (req, res, next) => {
+    const { code } = req.params;
+    const district = await axios.get(`https://provinces.open-api.vn/api/p/${code ? code : ''}?depth=2`);
 
     sendResponseToClient(res, 200, {
         status: 'success',

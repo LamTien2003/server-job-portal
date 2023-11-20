@@ -25,6 +25,7 @@ CategorySchema.virtual('totalJobs', {
     foreignField: 'type',
     localField: '_id',
     default: [],
+    match: { isAccepted: true, isDelete: false },
     count: true,
 });
 
