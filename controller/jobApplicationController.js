@@ -1,7 +1,10 @@
+const dayjs = require('dayjs');
+
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
+const sendMail = require('../utils/email');
 
 const JobApplication = require('../model/jobApplicationModel');
 const Job = require('../model/jobModel');
@@ -33,6 +36,7 @@ exports.getAllApplicationOfMyCompany = catchAsync(async (req, res, next) => {
         totalItems,
     });
 });
+
 exports.getAllApplicationOfJob = catchAsync(async (req, res, next) => {
     if (!(req.user.__t === 'Company')) {
         return next(new AppError('Chỉ có user thuộc dạng Công ty mới có thể thực hiện hành động này', 400));
@@ -141,7 +145,10 @@ exports.acceptJobApplication = catchAsync(async (req, res, next) => {
     }
     const { interviewDate } = req.body;
 
-    const jobApplication = await JobApplication.findOne({ _id: req.params.id });
+    const jobApplication = await JobApplication.findOne({ _id: req.params.id }).populate({
+        path: 'candicate',
+        select: 'email firstName lastName ',
+    });
     if (!jobApplication) {
         return next(new AppError('Không tồn tại đơn ứng tuyển', 400));
     }
@@ -166,6 +173,18 @@ exports.acceptJobApplication = catchAsync(async (req, res, next) => {
         sender: jobApplication.company,
         receiver: jobApplication.candicate,
         content: `Đơn ứng tuyển của bạn đã được chấp thuận`,
+    });
+
+    await sendMail({
+        subject: 'Đơn ứng tuyển của bạn đã được chấp thuận',
+        to: jobApplication.candicate.email,
+        candidateName: `${jobApplication.candicate.firstName} ${jobApplication.candicate.lastName}`,
+        position: job.title,
+        companyName: req.user.companyName,
+        interviewDate: dayjs(interviewDate).format('HH:mm DD-MMM-YYYY'),
+        location: `${req.user.location.address} ${req.user.location.district} ${req.user.location.city}`,
+        deadlineConfirm: dayjs(interviewDate).add(7, 'day').format('HH:mm DD-MMM-YYYY'),
+        companyPhoneNumber: req.user.phoneNumber,
     });
 
     return sendResponseToClient(res, 200, {
