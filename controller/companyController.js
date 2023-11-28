@@ -7,12 +7,20 @@ const Job = require('../model/jobModel');
 const Company = require('../model/companyModel');
 
 exports.getAllCompany = catchAsync(async (req, res, next) => {
+    const { p, d } = req.query;
     const companyQuery = new APIFeatures(Company.find({ ban: { $ne: true } }), req.query)
         .paginate()
         .filter()
         .search('companyName');
-    const companys = await companyQuery.query;
-    const totalItems = await Company.find().merge(companyQuery.query).skip(0).limit(0).count();
+    let totalQuery = companyQuery.query;
+    if (p) {
+        totalQuery = totalQuery.find({ 'location.city': { $regex: p, $options: 'i' } });
+    }
+    if (d) {
+        totalQuery = totalQuery.find({ 'location.district': { $regex: d, $options: 'i' } });
+    }
+    const companys = await totalQuery;
+    const totalItems = await Company.find().merge(totalQuery).skip(0).limit(0).count();
 
     return sendResponseToClient(res, 200, {
         status: 'success',
@@ -33,7 +41,7 @@ exports.getCompany = catchAsync(async (req, res, next) => {
         },
         {
             path: 'jobList',
-            select: 'title description photosJob salary type available isDelete',
+            select: 'title description photosJob salary type deadline available isDelete ',
             populate: [{ path: 'countApplication' }],
         },
     ]);

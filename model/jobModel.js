@@ -23,7 +23,12 @@ const JobSchema = new mongoose.Schema(
         skillsRequire: [
             {
                 type: String,
-                enum: skills,
+                enum: {
+                    values: Object.values(skills).flat(),
+                    message: `Chỉ được chọn các kĩ năng trong danh sách sau: ${Object.values(skills)
+                        .flat()
+                        .join(', ')}`,
+                },
             },
         ],
         jobRequire: [

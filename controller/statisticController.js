@@ -29,6 +29,9 @@ exports.getStatisticJob = catchAsync(async (req, res, next) => {
             $addFields: { month: '$_id' },
         },
         {
+            $sort: { month: 1 },
+        },
+        {
             $project: {
                 _id: 0,
             },

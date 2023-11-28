@@ -15,8 +15,10 @@ const jobSeekerSchema = new mongoose.Schema(
             {
                 type: String,
                 enum: {
-                    values: skills,
-                    message: `Chỉ được chọn các kĩ năng trong danh sách sau: ${skills.join(', ')}`,
+                    values: Object.values(skills).flat(),
+                    message: `Chỉ được chọn các kĩ năng trong danh sách sau: ${Object.values(skills)
+                        .flat()
+                        .join(', ')}`,
                 },
             },
         ],
