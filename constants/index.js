@@ -86,4 +86,23 @@ exports.skills = {
         'Khả năng chịu áp lực',
         'Kỹ năng về tâm lý học',
     ],
+    Marketing: [
+        'Phân tích dữ liệu',
+        'Nắm bắt tâm lý khách hàng',
+        'Định hướng chiến lược và quản lý dự án',
+        'Nhạy bén với thị trường',
+        'Kỹ năng lập kế hoạch',
+        'Kỹ năng thiết kế',
+        'Sáng tạo nội dung',
+    ],
+    Content: [
+        'Phân tích thương hiệu',
+        'SEO',
+        'Xây dựng ý tưởng và nội dung',
+        'Sản xuất nội dung',
+        'Khai thác ý tưởng',
+        'Sản xuất video',
+        'Chỉnh sửa hình ảnh/video',
+        'Quảng bá nội dung',
+    ],
 };
