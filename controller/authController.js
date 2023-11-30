@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const crypto = require('crypto');
+const dayjs = require('dayjs');
+
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
+const { sendOtp } = require('../utils/email');
 
 const User = require('../model/userModel');
 const Company = require('../model/companyModel');
@@ -163,20 +167,66 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
     createAndSendToken(user, 200, res);
 });
 
-exports.updateMyPassword = catchAsync(async (req, res, next) => {
-    const { currentPassword, password, passwordConfirm } = req.body;
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+    const { email } = req.body;
 
-    const user = await User.findById(req.user.id).select('+password');
-    if (user.ban) {
-        return next(new AppError('Tài khoản này đã bị khóa bởi quản trị viên', 401));
+    const user = await User.findOne({ email });
+    if (!user) {
+        return next(new AppError('Email không đúng hoặc không tồn tại', 400));
     }
-    if (!(await user.correctPassword(user.password, currentPassword))) {
-        return next(new AppError('Mật khẩu sai !!!', 401));
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    user.otp = otp;
+    user.otpExpires = dayjs().add(5, 'minute').toISOString();
+    await user.save({ validateBeforeSave: false });
+    await sendOtp({
+        subject: 'Yêu cầu khôi phục mật khẩu',
+        to: email,
+        otp,
+    });
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        msg: 'Đã gửi mã OTP đến địa chỉ gmail !!! ',
+    });
+});
+
+exports.confirmOtp = catchAsync(async (req, res, next) => {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        return next(new AppError('Email không đúng hoặc không tồn tại', 400));
+    }
+    if (user.otp !== otp) {
+        return next(new AppError('Mã xác nhận không chính xác', 400));
+    }
+    if (dayjs(user.otpExpires) < dayjs()) {
+        return next(new AppError('Mã xác nhận đã hết hạn, vui lòng thử lại để nhận mã xác nhận mới', 400));
+    }
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        msg: 'Mã xác nhận chính xác !!! ',
+    });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+    const { email, otp, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+        return next(new AppError('Email không đúng hoặc không tồn tại', 400));
+    }
+    if (user.otp !== otp) {
+        return next(new AppError('Mã xác nhận không chính xác', 400));
+    }
+    if (dayjs(user.otpExpires) < dayjs()) {
+        return next(new AppError('Mã xác nhận đã hết hạn, vui lòng thử lại để nhận mã xác nhận mới', 400));
     }
 
     user.password = password;
-    user.passwordConfirm = passwordConfirm;
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
-    createAndSendToken(user, 200, res);
+    return sendResponseToClient(res, 200, {
+        status: 'success',
+        msg: 'Thay đổi mật khẩu thành công ',
+    });
 });

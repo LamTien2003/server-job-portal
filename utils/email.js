@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
-const sendEmail = async (options) => {
-    let html = await fs.promises.readFile(path.join(__dirname, 'email.html'), 'utf-8');
+exports.sendEmailToCandidate = async (options) => {
+    let html = await fs.promises.readFile(path.join(__dirname, 'emailToCandidate.html'), 'utf-8');
     html = html.replace('[candidateName]', options.candidateName);
     html = html.replace('[position]', options.position);
     html = html.replace('[companyName]', options.companyName);
@@ -33,4 +33,27 @@ const sendEmail = async (options) => {
     await transporter.sendMail(mailOptions);
 };
 
-module.exports = sendEmail;
+exports.sendOtp = async (options) => {
+    let html = await fs.promises.readFile(path.join(__dirname, 'confirmOtp.html'), 'utf-8');
+    html = html.replace('[otp]', options.otp);
+
+    // 1) Create a transporter
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        auth: {
+            user: 'abctien2003@gmail.com',
+            pass: 'opqqnnnczndqwnpl',
+        },
+    });
+    // 2) Define the email options
+    const mailOptions = {
+        from: 'JobHub - Trung tâm việc làm',
+        to: options.to,
+        subject: options.subject,
+        // text: options.message,
+        html,
+    };
+    // 3) Actually send the email
+    await transporter.sendMail(mailOptions);
+};

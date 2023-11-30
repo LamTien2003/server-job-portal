@@ -5,7 +5,9 @@ const filesMiddleware = require('../middleware/filesMiddleware');
 const authMiddleware = require('../middleware/authMiddleware');
 const authController = require('../controller/authController');
 
-// find all users
+router.post('/resetPassword', authController.resetPassword);
+router.post('/confirmOtp', authController.confirmOtp);
+router.post('/forgotPassword', authController.forgotPassword);
 router.post(
     '/signup',
     filesMiddleware.uploadMultipleFields([

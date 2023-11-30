@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
-const sendMail = require('../utils/email');
+const { sendEmailToCandidate } = require('../utils/email');
 
 const JobApplication = require('../model/jobApplicationModel');
 const Job = require('../model/jobModel');
@@ -175,7 +175,7 @@ exports.acceptJobApplication = catchAsync(async (req, res, next) => {
         content: `Đơn ứng tuyển của bạn đã được chấp thuận`,
     });
 
-    await sendMail({
+    await sendEmailToCandidate({
         subject: 'Đơn ứng tuyển của bạn đã được chấp thuận',
         to: jobApplication.candicate.email,
         candidateName: `${jobApplication.candicate.firstName} ${jobApplication.candicate.lastName}`,
