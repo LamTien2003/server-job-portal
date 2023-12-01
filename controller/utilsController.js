@@ -8,15 +8,15 @@ const { skills } = require('../constants/index');
 
 exports.getSkills = catchAsync(async (req, res, next) => {
     const { name } = req.query;
-    if (!skills[name]) {
-        return next(
-            new AppError(
-                'Tên ngành nghề không nằm trong danh sách tồn tại của hệ thống, hãy kiểm tra lại tên ngành nghề',
-                400,
-            ),
-        );
+    let result = [];
+    if (name) {
+        if (!skills[name]) {
+            return next(new AppError('Ngành nghề này không tồn tại trong hệ thống', 400));
+        }
+        result = [...skills.common, ...skills[name]];
+    } else {
+        result = Object.values(skills).flat();
     }
-    const result = [...skills.common, ...skills[name]];
     sendResponseToClient(res, 200, {
         status: 'success',
         data: result || [],
