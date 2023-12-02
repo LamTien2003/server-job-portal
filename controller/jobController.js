@@ -392,6 +392,9 @@ exports.deleteJob = catchAsync(async (req, res, next) => {
         return next(new AppError('Job này hiện không còn tồn tại', 400));
     }
 
+    await JobApplication.deleteMany({ job: req.params.id });
+    await CommentJob.deleteMany({ job: req.params.id });
+
     return sendResponseToClient(res, 204, {
         status: 'success',
         msg: 'Đã xóa vĩnh viễn công việc này',

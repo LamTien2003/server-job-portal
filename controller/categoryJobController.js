@@ -1,9 +1,10 @@
 const catchAsync = require('../utils/catchAsync');
-const { sendResponseToClient } = require('../utils/ultils');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
+const { sendResponseToClient } = require('../utils/ultils');
 
 const CategoryJob = require('../model/categoryJobModel');
-const AppError = require('../utils/appError');
+const Job = require('../model/jobModel');
 
 exports.getAllCategoryJob = catchAsync(async (req, res, next) => {
     const categoryQuery = new APIFeatures(CategoryJob.find({}).populate('totalJobs'), req.query).paginate().filter();
@@ -34,6 +35,7 @@ exports.deleteCategoryJob = catchAsync(async (req, res, next) => {
     if (!categoryJob) {
         return next(new AppError('Danh mục ngành nghề không tồn tại', 400));
     }
+    await Job.deleteMany({ type: req.params.id });
     return sendResponseToClient(res, 200, {
         status: 'success',
         msg: 'Xóa danh mục thành công',
