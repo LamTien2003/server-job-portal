@@ -82,7 +82,8 @@ exports.signUp = catchAsync(async (req, res, next) => {
         return createAndSendToken(newUser, 201, res);
     }
     if (type === 'jobseeker') {
-        const newUser = await JobSeeker.create({ ...payload });
+        const { introduce } = req.body;
+        const newUser = await JobSeeker.create({ ...payload, introduce });
         return createAndSendToken(newUser, 201, res);
     }
     return next(new AppError('Type of user invalid, Please choose type of user you wanna register', 400));
