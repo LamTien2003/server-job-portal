@@ -114,17 +114,18 @@ exports.changeMe = catchAsync(async (req, res, next) => {
         );
     }
 
-    const { companyName, description, establishDate, website } = req.body;
+    const { companyName, description, establishDate, website, companySize } = req.body;
 
     const changeInfo = {
         companyName,
         description,
         establishDate,
         website,
+        companySize,
     };
 
     if (req?.file?.filename) {
-        changeInfo.cvImage = req.file.filename;
+        changeInfo.coverPhoto = req.file.filename;
     }
 
     const company = await Company.findByIdAndUpdate(req.user.id, changeInfo, {
