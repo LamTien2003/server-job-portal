@@ -8,7 +8,7 @@ const Company = require('../model/companyModel');
 
 exports.getAllCompany = catchAsync(async (req, res, next) => {
     const { p, d } = req.query;
-    const companyQuery = new APIFeatures(Company.find({ ban: { $ne: true } }), req.query)
+    const companyQuery = new APIFeatures(Company.find({ ban: { $ne: true } }).populate('totalJobCreated'), req.query)
         .paginate()
         .filter()
         .search('companyName')
@@ -44,6 +44,9 @@ exports.getCompany = catchAsync(async (req, res, next) => {
             path: 'jobList',
             select: 'title description photosJob salary type deadline available isDelete ',
             populate: [{ path: 'countApplication' }],
+        },
+        {
+            path: 'totalJobCreated',
         },
     ]);
     if (!company) {

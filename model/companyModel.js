@@ -52,6 +52,12 @@ CompanySchema.virtual('jobList', {
     localField: '_id',
     default: [],
 });
+CompanySchema.virtual('totalJobCreated', {
+    ref: 'Job',
+    foreignField: 'postedBy',
+    localField: '_id',
+    count: true,
+});
 
 const options = { discriminatorKey: 'kind' };
 const Company = User.discriminator('Company', CompanySchema, options);
