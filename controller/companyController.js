@@ -11,7 +11,8 @@ exports.getAllCompany = catchAsync(async (req, res, next) => {
     const companyQuery = new APIFeatures(Company.find({ ban: { $ne: true } }), req.query)
         .paginate()
         .filter()
-        .search('companyName');
+        .search('companyName')
+        .sort();
     let totalQuery = companyQuery.query;
     if (p) {
         totalQuery = totalQuery.find({ 'location.city': { $regex: p, $options: 'i' } });
