@@ -72,7 +72,7 @@ exports.resizePhoto = (destination) => {
                 return new Promise(async (resolve, reject) => {
                     try {
                         const fileBuffer = await sharp(element.buffer)
-                            .resize(500, 500)
+                            // .resize(500, 500)
                             .toFormat('jpeg')
                             .jpeg({ quality: 90 })
                             .toBuffer();
@@ -104,7 +104,7 @@ exports.resizePhoto = (destination) => {
                         return new Promise(async (resolve, reject) => {
                             try {
                                 const fileBuffer = await sharp(element.buffer)
-                                    .resize(500, 500)
+                                    // .resize(500, 500)
                                     .toFormat('jpeg')
                                     .jpeg({ quality: 90 })
                                     .toBuffer();
