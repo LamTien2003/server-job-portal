@@ -6,7 +6,7 @@ const jobSeekerSchema = new mongoose.Schema(
     {
         introduce: {
             type: String,
-            maxlength: [250, 'Lời giới thiệu nên ít hơn 250 kí tự'],
+            maxlength: [1500, 'Lời giới thiệu nên ít hơn 1500 kí tự'],
         },
         cvImage: {
             type: String,

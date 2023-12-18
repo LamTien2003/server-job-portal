@@ -10,7 +10,7 @@ const CompanySchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            maxlength: [500, 'Mô tả của công ty không nên vượt quá 500 kí tự'],
+            maxlength: [1500, 'Mô tả của công ty không nên vượt quá 1500 kí tự'],
         },
         establishDate: {
             type: Date,

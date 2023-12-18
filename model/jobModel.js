@@ -8,7 +8,6 @@ const JobSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'Company',
         },
-
         title: {
             type: String,
             maxlength: [100, 'Tiêu đề của công việc nên ít hơn 100 kí tự'],
@@ -16,7 +15,7 @@ const JobSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            maxlength: [500, 'Mô tả công việc không được vượt quá 500 kí tự'],
+            maxlength: [1500, 'Mô tả công việc không được vượt quá 1500 kí tự'],
             required: [true, 'Mô tả công việc là trường bắt buộc'],
         },
         photosJob: [String],
@@ -34,7 +33,7 @@ const JobSchema = new mongoose.Schema(
         jobRequire: [
             {
                 type: String,
-                maxlength: [1000, 'Yêu cầu công việc không được vượt quá 1000 kí tự'],
+                maxlength: [1500, 'Yêu cầu công việc không được vượt quá 1500 kí tự'],
                 required: [true, 'Yêu cầu công việc là trường bắt buộc'],
             },
         ],
