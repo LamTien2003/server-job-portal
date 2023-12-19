@@ -71,9 +71,9 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
         req.query,
     )
         .filter()
-        .paginate()
         .sort()
-        .search('title');
+        .search('title')
+        .paginate();
 
     const jobs = await jobsQuery.query.lookup({
         from: CategoryJob.collection.name,
@@ -129,9 +129,9 @@ exports.getAllJobAccepted = catchAsync(async (req, res, next) => {
         req.query,
     )
         .filter()
-        .paginate()
         .sort()
-        .search('title');
+        .search('title')
+        .paginate();
     const jobs = await jobsQuery.query.lookup({
         from: CategoryJob.collection.name,
         foreignField: '_id',
@@ -183,9 +183,9 @@ exports.getAllJobNotAcceptYet = catchAsync(async (req, res, next) => {
         req.query,
     )
         .filter()
-        .paginate()
         .sort()
-        .search('title');
+        .search('title')
+        .paginate();
 
     const jobs = await jobsQuery.query.lookup({
         from: CategoryJob.collection.name,
@@ -227,8 +227,8 @@ exports.getAllJobDeleted = catchAsync(async (req, res, next) => {
     }
     const jobsQuery = new APIFeatures(Job.find({ postedBy: req.user.id, isDelete: true }), req.query)
         .filter()
-        .paginate()
-        .sort();
+        .sort()
+        .paginate();
 
     const jobs = await jobsQuery.query;
     const totalItems = await Job.find().merge(jobsQuery.query).skip(0).limit(0).count();
