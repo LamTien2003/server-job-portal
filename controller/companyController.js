@@ -43,6 +43,7 @@ exports.getCompany = catchAsync(async (req, res, next) => {
         {
             path: 'jobList',
             select: 'title description photosJob salary type deadline available isDelete ',
+            match: { isDelete: false },
             populate: [{ path: 'countApplication' }],
         },
         {
